@@ -1,44 +1,32 @@
-// idea-tracker-fullstack/vercel.json
 {
-    "version": 2,
-    "builds": [
-      {
-        // Build the Node.js server API
-        "src": "server/server.js", // Path to your main server file
-        "use": "@vercel/node"
-      },
-      {
-        // Serve the static client files
-        "src": "client/**",       // All files within the client folder
-        "use": "@vercel/static"
-      }
-    ],
-    "routes": [
-      {
-        // Route API requests (/api/...) to the Node.js server function
-        "src": "/api/(.*)",        // Match any path starting with /api/
-        "dest": "server/server.js" // Route it to the server entry point
-      },
-      {
-        // Route requests for static files directly from the client build output
-        // This handles CSS, JS, images etc. inside the client folder
-        "src": "/(.*\\.(css|js|html|png|jpg|jpeg|gif|svg|ico|json))", // Match common static file extensions
-        "dest": "/client/$1",      // Serve the matched file from the client directory
-        "headers": { "cache-control": "s-maxage=31536000, immutable" } // Optional: Aggressive caching for static assets
-      },
-       {
-        // Route the root path "/" to the index.html file
-        "src": "/",
-        "dest": "/client/index.html"
-      },
-      {
-          // Optional: Handle client-side routing or direct access to index.html
-          // If you only have index.html, the above route might be sufficient.
-          // If you had client-side routing (React, Vue etc.), this is more important.
-          "src": "/(.*)",            // Match any other path not caught above
-           "dest": "/client/index.html" // Fallback to index.html
-          // OR if you don't want fallback and just serve static files:
-          // "handle": "filesystem"
-      }
-    ]
-  }
+  "version": 2,
+  "builds": [
+    {
+      "src": "server/server.js",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "client/**",
+      "use": "@vercel/static"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "server/server.js"
+    },
+    {
+      "src": "/(.*\\.(css|js|html|png|jpg|jpeg|gif|svg|ico|json))",
+      "dest": "/client/$1",
+      "headers": { "cache-control": "s-maxage=31536000, immutable" }
+    },
+    {
+      "src": "/",
+      "dest": "/client/index.html"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/client/index.html"
+    }
+  ]
+}
