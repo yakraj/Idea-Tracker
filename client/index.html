@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Idea Tracker</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <nav class="navbar">
+      <ul>
+        <li><button id="nav-home" class="nav-button active">Home</button></li>
+        <li><button id="nav-add-idea" class="nav-button">Add Idea</button></li>
+      </ul>
+    </nav>
+
+    <main id="app-content">
+      <!-- Home View -->
+      <div id="home-view" class="view active-view">
+        <div class="home-container">
+          <!-- Left Side: Pending Ideas -->
+          <div class="ideas-section pending-section">
+            <h2>Pending Ideas</h2>
+            <div class="ideas-list scrollable" id="pending-ideas-list">
+              <!-- Pending ideas will be loaded here by JS -->
+            </div>
+          </div>
+
+          <!-- Right Side: Finished Ideas -->
+          <div class="ideas-section finished-section">
+            <h2>Finished Ideas</h2>
+            <div class="ideas-list" id="finished-ideas-list">
+              <!-- Finished ideas will be loaded here by JS -->
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Add Idea View -->
+      <div id="add-idea-view" class="view">
+        <h2>Add New Idea</h2>
+        <div class="add-idea-form">
+          <label for="idea-textarea">Title (Max 100 chars):</label>
+          <textarea
+            id="idea-textarea"
+            placeholder="Enter the main idea title..."
+            maxlength="100"
+          ></textarea>
+          <div id="char-counter">0 / 100</div>
+
+          <!-- Added Description Textarea -->
+          <label for="idea-description-textarea">Description (Optional):</label>
+          <textarea
+            id="idea-description-textarea"
+            placeholder="Add more details here..."
+          ></textarea>
+          <!-- End of Added Part -->
+
+          <button id="create-idea-btn">Create Idea</button>
+        </div>
+      </div>
+    </main>
+
+    <script src="script.js"></script>
+  </body>
+</html>

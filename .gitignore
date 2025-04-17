@@ -1,0 +1,19 @@
+# Node dependencies
+node_modules/
+server/node_modules/ # If you didn't move deps to root
+
+# Environment variables
+.env
+server/.env
+
+# Vercel build output (optional, but good practice)
+.vercel/
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Log files
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*

@@ -1,0 +1,20 @@
+// idea-tracker-fullstack/package.json
+{
+    "name": "idea-tracker-fullstack",
+    "version": "1.0.0",
+    "description": "Idea tracker with Node API and static frontend",
+    "main": "server/server.js", // Point to your server entry file
+    "scripts": {
+      "start": "node server/server.js", // Optional: For local running
+      "build": "echo 'No build step required for frontend'" // Or specific build step if needed
+    },
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+      "cors": "^2.8.5",
+      "dotenv": "^16.3.1", // Or your installed version
+      "express": "^4.18.2",  // Or your installed version
+      "mongoose": "^7.5.0"   // Or your installed version
+      // Add any other server dependencies here
+    }
+  }
