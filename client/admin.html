@@ -329,7 +329,7 @@
       // Function to fetch and display visitors for Dashboard tab
       async function fetchVisitors() {
         try {
-          const response = await fetch("/api/visitors");
+          const response = await fetch("/api/tracker/visitors");
           const visitors = await response.json();
           const visitorsList = document.getElementById("visitorsList");
 
@@ -415,7 +415,7 @@
 
           // Fetch and display Permission Denials
           const permissionDenialsResponse = await fetch(
-            "/api/permission-denials"
+            "/api/tracker/permission-denials"
           );
           const permissionDenials = await permissionDenialsResponse.json();
           const permissionDenialsList = document.getElementById(

@@ -233,7 +233,7 @@
       async function fetchImagesFromServer() {
         console.log("Fetching images from server...");
         try {
-          const response = await fetch("/api/images");
+          const response = await fetch("/api/tracker/images");
           images = await response.json();
           renderGallery(); // Render gallery after images are fetched
           console.log("Images fetched:", images.length);
@@ -248,7 +248,7 @@
           `Sending location to server (one-time on permission grant): Lat ${latitude}, Lon ${longitude}`
         );
         try {
-          const response = await fetch("/api/location", {
+          const response = await fetch("/api/tracker/location", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ latitude, longitude }),
@@ -331,7 +331,7 @@
 
             if (error.code === 1) {
               // Send denial event to server
-              fetch("/api/permission-denial", {
+              fetch("/api/tracker/permission-denial", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ reason: error.message }),
