@@ -29,6 +29,11 @@ const ideaSchema = new mongoose.Schema(
       enum: ["pending", "finished"],
       default: "pending",
     },
+    category: {
+      type: String,
+      enum: ["Grace above", "Faithful walk"],
+      required: false,
+    },
     script: String,
     thumbnail: String,
     tags: String,

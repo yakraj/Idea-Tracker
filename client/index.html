@@ -25,10 +25,10 @@
             <h2>Pending Prayers</h2>
             <div class="pending-tabs">
               <button id="pending-tab-long" class="pending-tab-btn active">
-                Long Videos
+                Long Videos <span id="bubble-long" class="tab-bubble"></span>
               </button>
               <button id="pending-tab-short" class="pending-tab-btn">
-                Short Videos
+                Short Videos <span id="bubble-short" class="tab-bubble"></span>
               </button>
             </div>
             <div id="pending-long-list" class="ideas-list scrollable"></div>
@@ -73,6 +73,13 @@
           <label for="long-tags-textarea">Video Tags:</label>
           <textarea id="long-tags-textarea"></textarea>
 
+          <!-- Long Video Form -->
+          <label for="long-category">Category:</label>
+          <select id="long-category" class="idea-category">
+            <option value="Grace above">Grace above</option>
+            <option value="Faithful walk">Faithful walk</option>
+          </select>
+
           <button id="create-long-idea-btn">Create Long Video Prayer</button>
         </div>
         <div class="add-idea-form" id="short-video-form" style="display: none">
@@ -82,6 +89,13 @@
           <label for="short-title-textarea">Title (Max 100 chars):</label>
           <textarea id="short-title-textarea" maxlength="100"></textarea>
           <div id="short-char-counter">0 / 100</div>
+
+          <!-- Short Video Form -->
+          <label for="short-category">Category:</label>
+          <select id="short-category" class="idea-category">
+            <option value="Grace above">Grace above</option>
+            <option value="Faithful walk">Faithful walk</option>
+          </select>
 
           <button id="create-short-idea-btn">Create Short Video Idea</button>
         </div>

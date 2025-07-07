@@ -24,6 +24,7 @@ router.post("/", async (req, res) => {
     script,
     thumbnail,
     tags,
+    category,
     type, // "long" or "short"
   } = req.body;
 
@@ -38,6 +39,7 @@ router.post("/", async (req, res) => {
     thumbnail,
     tags,
     type,
+    category,
     status: "pending",
     createdAt: new Date(),
   });
