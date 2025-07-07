@@ -98,7 +98,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // Long Video
   createLongIdeaButton.addEventListener("click", async () => {
     const title = longTitleTextarea.value.trim();
-    const script = longScriptTextarea.value.trim();
+    const script = convertNumbersInText(longScriptTextarea.value.trim());
     const thumbnail = longThumbnailTextarea.value.trim();
     const description = longDescriptionTextarea.value.trim();
     const tags = longTagsTextarea.value.trim();
@@ -579,3 +579,105 @@ document.addEventListener("DOMContentLoaded", () => {
 
   updateCharCounter();
 });
+
+// --- Number to Words Converter ---
+function convertLessThanThousand(n) {
+  const belowTwenty = [
+    "",
+    "one",
+    "two",
+    "three",
+    "four",
+    "five",
+    "six",
+    "seven",
+    "eight",
+    "nine",
+    "ten",
+    "eleven",
+    "twelve",
+    "thirteen",
+    "fourteen",
+    "fifteen",
+    "sixteen",
+    "seventeen",
+    "eighteen",
+    "nineteen",
+  ];
+  const tens = [
+    "",
+    "",
+    "twenty",
+    "thirty",
+    "forty",
+    "fifty",
+    "sixty",
+    "seventy",
+    "eighty",
+    "ninety",
+  ];
+
+  if (n === 0) return "";
+  if (n < 20) return belowTwenty[n];
+  if (n < 100) {
+    return tens[Math.floor(n / 10)] + (n % 10 ? " " + belowTwenty[n % 10] : "");
+  }
+  return (
+    belowTwenty[Math.floor(n / 100)] +
+    " hundred" +
+    (n % 100 ? " " + convertLessThanThousand(n % 100) : "")
+  );
+}
+
+function numberToWords(num) {
+  if (num === 0) return "zero";
+
+  const thousandGroups = ["", "thousand", "million", "billion", "trillion"];
+
+  let word = "";
+  let groupIndex = 0;
+  let n = num;
+
+  while (n > 0) {
+    let chunk = n % 1000;
+    if (chunk !== 0) {
+      let chunkWords = convertLessThanThousand(chunk);
+      let groupName = thousandGroups[groupIndex];
+      word =
+        chunkWords +
+        (groupName ? " " + groupName : "") +
+        (word ? " " + word : "");
+    }
+    n = Math.floor(n / 1000);
+    groupIndex++;
+  }
+  return word.trim();
+}
+
+function convertNumbersInText(text) {
+  // 1. Replace em dash (—) between letters with hyphen
+  text = text.replace(/([a-zA-Z])—([a-zA-Z])/g, "$1-$2");
+
+  //replace the LORD with Lord
+  text = text.replace(/\bLORD\b/g, "Lord");
+  text = text.replace(/…/g, ".");
+
+  // 2. Replace hyphen between numbers with ' to '
+  text = text.replace(/\b(\d+)-(\d+)\b/g, "$1 to $2");
+
+  // 3. Replace em dash "—" with hyphen "-" (for any remaining em dashes)
+  text = text.replace(/—/g, "-");
+
+  // 4. Remove text inside brackets (including the brackets) and the whitespace before the bracket
+  text = text.replace(/\s*\(.*?\)/g, "");
+
+  // 5. Convert individual numbers to words first.
+  text = text.replace(/\b\d+\b/g, (match) =>
+    numberToWords(parseInt(match, 10))
+  );
+
+  // 7. Replace colon between words (which were numbers) with " verse ".
+  text = text.replace(/\b(\w+):(\w+)\b/g, "$1 verse $2");
+
+  return text;
+}
