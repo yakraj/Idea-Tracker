@@ -1,38 +1,50 @@
+// server/server.js
 require("dotenv").config();
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
-
-const path = require("path");
-const trackerRoutes = require("./models/tracker");
-// const ideaRoutes = require('./routes/ideas'); // <-- Commented temporarily
+const ideaRoutes = require("./routes/ideas");
 
 const app = express();
-app.use(cors());
+// PORT is not needed when deploying to Vercel, but keep for local dev
+const PORT = process.env.PORT || 5000;
+const MONGODB_URI = process.env.MONGODB_URI;
+
+// --- Database Connection ---
+// (Keep your existing connection logic)
+if (!MONGODB_URI) {
+  console.error("FATAL ERROR: MONGODB_URI is not defined.");
+  // Don't exit process in serverless context, let Vercel handle errors
+} else {
+  mongoose
+    .connect(MONGODB_URI)
+    .then(() => console.log("MongoDB Connected successfully!"))
+    .catch((err) => {
+      console.error("MongoDB Connection Error:", err);
+      // Log error, Vercel will show function failure
+    });
+}
+
+// --- Middleware ---
+app.use(cors()); // Consider configuring origins more strictly for production
 app.use(express.json());
 
-// Optional: MongoDB connection if you still need it
-// const MONGODB_URI = process.env.MONGODB_URI;
-// if (MONGODB_URI) {
-//     mongoose.connect(MONGODB_URI)
-//         .then(() => console.log('MongoDB Connected'))
-//         .catch(err => console.error('MongoDB connection error', err));
-// }
+// --- Routes ---
+// Make sure API routes are prefixed correctly if needed,
+// but the vercel.json handles the /api prefixing
+app.use("/api/ideas", ideaRoutes); // This is correct because vercel.json routes /api/* here
 
-// Routes
-app.use("/api/tracker", trackerRoutes); // Your new visitor/location routes
-// app.use('/api/ideas', ideaRoutes);   // <-- Commented out for now
-
+// Add a root route for the API endpoint itself for testing
 app.get("/api", (req, res) => {
-  res.send("1YearAnniversary API root is running!");
+  res.send("Idea Tracker API root is running!");
 });
 
-// Serve static HTML from /client
-app.use("/", express.static(path.join(__dirname, "..", "client")));
+// --- Vercel Export ---
+// Remove or comment out app.listen()
 
-// Fallback to index.html
-app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "..", "client", "index.html"));
+app.listen(PORT, () => {
+  console.log(`Server is running on http://localhost:${PORT}`);
 });
 
+// Export the Express app instance for Vercel
 module.exports = app;

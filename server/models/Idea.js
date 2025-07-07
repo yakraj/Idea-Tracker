@@ -29,6 +29,10 @@ const ideaSchema = new mongoose.Schema(
       enum: ["pending", "finished"],
       default: "pending",
     },
+    script: String,
+    thumbnail: String,
+    tags: String,
+    type: { type: String, enum: ["long", "short"], required: true },
   },
   {
     // Automatically add createdAt and updatedAt fields

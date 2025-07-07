@@ -18,7 +18,14 @@ router.get("/", async (req, res) => {
 
 // POST a new idea
 router.post("/", async (req, res) => {
-  const { title, description } = req.body;
+  const {
+    title,
+    description,
+    script,
+    thumbnail,
+    tags,
+    type, // "long" or "short"
+  } = req.body;
 
   if (!title) {
     return res.status(400).json({ message: "Title is required" });
@@ -26,7 +33,13 @@ router.post("/", async (req, res) => {
 
   const newIdea = new Idea({
     title,
-    description: description || "", // Handle potentially undefined description
+    description,
+    script,
+    thumbnail,
+    tags,
+    type,
+    status: "pending",
+    createdAt: new Date(),
   });
 
   try {

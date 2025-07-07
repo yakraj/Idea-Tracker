@@ -1,6 +1,7 @@
 document.addEventListener("DOMContentLoaded", () => {
   // --- Constants ---
-  const API_BASE_URL = '/api/ideas';
+  // const API_BASE_URL = "/api/ideas";
+  const API_BASE_URL = "http://localhost:5000/api/ideas";
   // Your backend server URL
 
   // --- State ---
@@ -8,6 +9,11 @@ document.addEventListener("DOMContentLoaded", () => {
   // let ideasData = [];
 
   // --- DOM Elements ---
+  const pendingTabLong = document.getElementById("pending-tab-long");
+  const pendingTabShort = document.getElementById("pending-tab-short");
+  const pendingLongList = document.getElementById("pending-long-list");
+  const pendingShortList = document.getElementById("pending-short-list");
+
   const navHomeButton = document.getElementById("nav-home");
   const navAddIdeaButton = document.getElementById("nav-add-idea");
   const views = document.querySelectorAll(".view");
@@ -21,9 +27,134 @@ document.addEventListener("DOMContentLoaded", () => {
     "idea-description-textarea"
   );
   const createIdeaButton = document.getElementById("create-idea-btn");
+  // ...existing code...
+  const tabLong = document.getElementById("tab-long");
+  const tabShort = document.getElementById("tab-short");
+  const longVideoForm = document.getElementById("long-video-form");
+  const shortVideoForm = document.getElementById("short-video-form");
 
+  const longScriptTextarea = document.getElementById("long-script-textarea");
+  const longTitleTextarea = document.getElementById("long-title-textarea");
+  const longCharCounter = document.getElementById("long-char-counter");
+  const longThumbnailTextarea = document.getElementById(
+    "long-thumbnail-textarea"
+  );
+  const longDescriptionTextarea = document.getElementById(
+    "long-description-textarea"
+  );
+  const longTagsTextarea = document.getElementById("long-tags-textarea");
+  const createLongIdeaButton = document.getElementById("create-long-idea-btn");
+
+  const shortScriptTextarea = document.getElementById("short-script-textarea");
+  const shortTitleTextarea = document.getElementById("short-title-textarea");
+  const shortCharCounter = document.getElementById("short-char-counter");
+  const createShortIdeaButton = document.getElementById(
+    "create-short-idea-btn"
+  );
   // --- API Functions ---
 
+  // Tab switching for pending ideas
+  pendingTabLong.addEventListener("click", () => {
+    pendingTabLong.classList.add("active");
+    pendingTabShort.classList.remove("active");
+    pendingLongList.style.display = "";
+    pendingShortList.style.display = "none";
+  });
+  pendingTabShort.addEventListener("click", () => {
+    pendingTabShort.classList.add("active");
+    pendingTabLong.classList.remove("active");
+    pendingLongList.style.display = "none";
+    pendingShortList.style.display = "";
+  });
+  // --- Tab Switching ---
+  tabLong.addEventListener("click", () => {
+    tabLong.classList.add("active");
+    tabShort.classList.remove("active");
+    longVideoForm.style.display = "";
+    shortVideoForm.style.display = "none";
+  });
+  tabShort.addEventListener("click", () => {
+    tabShort.classList.remove("active");
+    tabLong.classList.remove("active");
+    tabShort.classList.add("active");
+    longVideoForm.style.display = "none";
+    shortVideoForm.style.display = "";
+  });
+
+  // --- Character Counters ---
+  longTitleTextarea.addEventListener("input", () => {
+    longCharCounter.textContent = `${longTitleTextarea.value.length} / 100`;
+  });
+  shortTitleTextarea.addEventListener("input", () => {
+    shortCharCounter.textContent = `${shortTitleTextarea.value.length} / 100`;
+  });
+
+  // --- Add Idea Handlers ---
+  createLongIdeaButton.addEventListener("click", async () => {
+    const title = longTitleTextarea.value.trim();
+    const script = longScriptTextarea.value.trim();
+    const thumbnail = longThumbnailTextarea.value.trim();
+    const description = longDescriptionTextarea.value.trim();
+    const tags = longTagsTextarea.value.trim();
+
+    if (!title) {
+      alert("Please enter a title.");
+      return;
+    }
+    // You can add more validation as needed
+
+    createLongIdeaButton.disabled = true;
+    createLongIdeaButton.textContent = "Creating...";
+
+    // Send all fields to backend
+    const success = await addIdeaAPI(title, description, {
+      script,
+      thumbnail,
+      tags,
+      type: "long",
+    });
+
+    createLongIdeaButton.disabled = false;
+    createLongIdeaButton.textContent = "Create Long Video Idea";
+
+    if (success) {
+      longTitleTextarea.value = "";
+      longScriptTextarea.value = "";
+      longThumbnailTextarea.value = "";
+      longDescriptionTextarea.value = "";
+      longTagsTextarea.value = "";
+      longCharCounter.textContent = "0 / 100";
+      showView("home-view");
+    }
+  });
+  createShortIdeaButton.addEventListener("click", async () => {
+    const title = shortTitleTextarea.value.trim();
+    const script = shortScriptTextarea.value.trim();
+
+    if (!title) {
+      alert("Please enter a title.");
+      return;
+    }
+
+    createShortIdeaButton.disabled = true;
+    createShortIdeaButton.textContent = "Creating...";
+
+    // Only send script and title, mark as short
+    const success = await addIdeaAPI(title, "", {
+      script,
+      type: "short",
+    });
+
+    createShortIdeaButton.disabled = false;
+    createShortIdeaButton.textContent = "Create Short Video Idea";
+
+    if (success) {
+      shortTitleTextarea.value = "";
+      shortScriptTextarea.value = "";
+      shortCharCounter.textContent = "0 / 100";
+      showView("home-view");
+    }
+  });
   // Fetch all ideas from the server
   const fetchIdeas = async () => {
     try {
@@ -47,37 +178,33 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   // Add a new idea via API
-  const addIdeaAPI = async (title, description) => {
+  const addIdeaAPI = async (title, description, extra = {}) => {
     try {
+      const body = { title, description, ...extra };
       const response = await fetch(API_BASE_URL, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ title, description }),
+        body: JSON.stringify(body),
       });
 
       if (!response.ok) {
-        // Try to parse error message from backend if available
         let errorMsg = `HTTP error! status: ${response.status}`;
         try {
           const errData = await response.json();
           errorMsg =
             errData.message || JSON.stringify(errData.errors) || errorMsg;
-        } catch (e) {
-          /* Ignore parsing error */
-        }
+        } catch (e) {}
         throw new Error(errorMsg);
       }
 
-      // const newIdea = await response.json(); // Get the newly created idea back
-      // Instead of optimistically adding, just re-fetch the whole list for simplicity
       fetchIdeas();
-      return true; // Indicate success
+      return true;
     } catch (error) {
       console.error("Error adding idea:", error);
       alert(`Failed to add idea: ${error.message}`);
-      return false; // Indicate failure
+      return false;
     }
   };
 
@@ -176,25 +303,27 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Modified to accept ideas array as parameter
   const renderIdeas = (ideasData) => {
-    pendingIdeasList.innerHTML = "";
+    console.log("Ideas received:", ideasData);
+
+    pendingLongList.innerHTML = "";
+    pendingShortList.innerHTML = "";
     finishedIdeasList.innerHTML = "";
 
-    // Separate ideas based on status
-    const pendingIdeas = ideasData.filter((idea) => idea.status === "pending");
+    // Separate ideas based on status and type
+    const pendingLong = ideasData.filter(
+      (idea) => idea.status === "pending" && idea.type === "long"
+    );
+    const pendingShort = ideasData.filter(
+      (idea) => idea.status === "pending" && idea.type === "short"
+    );
     const finishedIdeas = ideasData.filter(
       (idea) => idea.status === "finished"
     );
 
-    // Close descriptions before rendering
-    closeAllDescriptions();
-
     const renderList = (list, container) => {
       if (list.length === 0) {
-        container.innerHTML = `<p class="empty-message">No ${
-          container.id.includes("pending") ? "pending" : "finished"
-        } ideas yet${container.id.includes("pending") ? "!" : "."}</p>`;
+        container.innerHTML = `<p class="empty-message">No ideas yet!</p>`;
       } else {
-        // Already sorted by server (newest first)
         list.forEach((idea) => {
           const ideaElement = createIdeaElement(idea);
           container.appendChild(ideaElement);
@@ -202,7 +331,8 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     };
 
-    renderList(pendingIdeas, pendingIdeasList);
+    renderList(pendingLong, pendingLongList);
+    renderList(pendingShort, pendingShortList);
     renderList(finishedIdeas, finishedIdeasList);
   };
 
@@ -211,68 +341,105 @@ document.addEventListener("DOMContentLoaded", () => {
   const createIdeaElement = (idea) => {
     const div = document.createElement("div");
     div.classList.add("idea-item");
-    div.dataset.id = idea._id; // Use MongoDB's _id
+    div.dataset.id = idea._id;
 
-    const infoDiv = document.createElement("div");
-    infoDiv.classList.add("info");
-    // Format date nicely
-    const formattedDate = new Date(
-      idea.createdAt || idea.date
-    ).toLocaleDateString(); // Use createdAt if available
-    infoDiv.innerHTML = `
-          <span class="title">${escapeHTML(idea.title)}</span>
-          <div class="idea-description">${escapeHTML(
-            idea.description || ""
-          )}</div>
-          <span class="date">Added: ${formattedDate} ${
-      idea.status === "finished" && idea.url
-        ? `| Finished URL: ${escapeHTML(idea.url)}`
-        : ""
-    }</span>
-      `;
-    infoDiv.addEventListener("click", toggleDescription);
-    div.appendChild(infoDiv);
+    // Helper to trim and add ellipsis
+    const trimText = (text, maxLen = 50) =>
+      text && text.length > maxLen ? text.slice(0, maxLen) + "..." : text || "";
 
-    const actionsDiv = document.createElement("div");
-    actionsDiv.classList.add("actions");
+    // --- Script with Show More/See Less ---
+    const scriptDiv = document.createElement("div");
+    scriptDiv.className = "idea-script";
+    const script = idea.script || "";
+    const scriptLines = script.split("\n");
+    const scriptShort = scriptLines.slice(0, 2).join("\n");
+    const needsShowMore = scriptLines.length > 2 || script.length > 120;
 
-    if (idea.status === "pending") {
-      const finishButton = document.createElement("button");
-      finishButton.textContent = "✔ Finish";
-      finishButton.classList.add("finish-btn");
-      // Call API function
-      finishButton.onclick = (e) => {
-        e.stopPropagation();
-        markAsFinishedAPI(idea._id);
-      };
-      actionsDiv.appendChild(finishButton);
+    scriptDiv.innerHTML = `
+    <div class="field-label">Script</div>
+    <pre class="script-content">${
+      needsShowMore ? trimText(scriptShort, 120) : scriptShort
+    }</pre>
+    ${needsShowMore ? `<a href="#" class="show-more-link">Show more</a>` : ""}
+    <button class="copy-btn" data-copy="${script.replace(
+      /"/g,
+      "&quot;"
+    )}">COPY</button>
+  `;
 
-      const deleteButton = document.createElement("button");
-      deleteButton.textContent = "✖ Delete";
-      deleteButton.classList.add("delete-btn");
-      // Call API function
-      deleteButton.onclick = (e) => {
-        e.stopPropagation();
-        deleteIdeaAPI(idea._id);
-      };
-      actionsDiv.appendChild(deleteButton);
-    } else if (idea.status === "finished") {
-      const playButton = document.createElement("button");
-      playButton.textContent = "▶ Play";
-      playButton.classList.add("play-btn");
-      // Play video logic remains client-side
-      playButton.onclick = (e) => {
-        e.stopPropagation();
-        playVideo(idea.url);
-      };
-      if (!idea.url) {
-        playButton.disabled = true;
-        playButton.style.opacity = 0.5;
-        playButton.title = "No URL provided";
-      }
-      actionsDiv.appendChild(playButton);
+    // --- Title ---
+    const titleDiv = document.createElement("div");
+    titleDiv.className = "idea-title";
+    titleDiv.innerHTML = `
+    <div class="field-label">Title</div>
+    <span class="single-line">${trimText(idea.title, 40)}</span>
+    <button class="copy-btn" data-copy="${idea.title || ""}">COPY</button>
+  `;
+
+    // --- Thumbnail ---
+    const thumbDiv = document.createElement("div");
+    thumbDiv.className = "idea-thumbnail";
+    thumbDiv.innerHTML = `
+    <div class="field-label">Thumbnail</div>
+    <span class="single-line">${trimText(idea.thumbnail, 40)}</span>
+    <button class="copy-btn" data-copy="${idea.thumbnail || ""}">COPY</button>
+  `;
+
+    // --- Description ---
+    const descDiv = document.createElement("div");
+    descDiv.className = "idea-description";
+    descDiv.innerHTML = `
+    <div class="field-label">Description</div>
+    <span class="single-line">${trimText(idea.description, 40)}</span>
+    <button class="copy-btn" data-copy="${idea.description || ""}">COPY</button>
+  `;
+
+    // --- Tags ---
+    const tagsDiv = document.createElement("div");
+    tagsDiv.className = "idea-tags";
+    tagsDiv.innerHTML = `
+    <div class="field-label">Tags</div>
+    <span class="single-line">${trimText(idea.tags, 40)}</span>
+    <button class="copy-btn" data-copy="${idea.tags || ""}">COPY</button>
+  `;
+
+    // --- Compose ---
+    div.appendChild(scriptDiv);
+    div.appendChild(titleDiv);
+    if (idea.type === "long" || !idea.type) {
+      div.appendChild(thumbDiv);
+      div.appendChild(descDiv);
+      div.appendChild(tagsDiv);
     }
-    div.appendChild(actionsDiv);
+
+    // --- Show More/See Less Handler ---
+    const showMoreLink = scriptDiv.querySelector(".show-more-link");
+    const scriptContent = scriptDiv.querySelector(".script-content");
+    let expanded = false;
+    if (showMoreLink) {
+      showMoreLink.addEventListener("click", (e) => {
+        e.preventDefault();
+        expanded = !expanded;
+        if (expanded) {
+          scriptContent.textContent = script;
+          showMoreLink.textContent = "See less";
+        } else {
+          scriptContent.textContent = trimText(scriptShort, 120);
+          showMoreLink.textContent = "Show more";
+        }
+      });
+    }
+
+    // --- Copy Handler ---
+    div.querySelectorAll(".copy-btn").forEach((btn) => {
+      btn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const text = btn.getAttribute("data-copy");
+        navigator.clipboard.writeText(text || "");
+        btn.textContent = "Copied!";
+        setTimeout(() => (btn.textContent = "COPY"), 1000);
+      });
+    });
 
     return div;
   };
