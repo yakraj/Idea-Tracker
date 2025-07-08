@@ -7,7 +7,7 @@ const ideaRoutes = require("./routes/ideas");
 
 const app = express();
 // PORT is not needed when deploying to Vercel, but keep for local dev
-// const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5000;
 const MONGODB_URI = process.env.MONGODB_URI;
 
 // --- Database Connection ---

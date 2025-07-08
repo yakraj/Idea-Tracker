@@ -452,7 +452,6 @@ document.addEventListener("DOMContentLoaded", () => {
             seeMore.textContent = "See More.";
           }
         });
-        e;
       }
 
       // Copy handler
